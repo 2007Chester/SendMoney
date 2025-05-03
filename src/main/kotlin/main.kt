@@ -16,16 +16,32 @@ fun calculatedTax(typeCard: String, monthlyTransferTotal: Int = 0, transfer: Int
     }
 
     val tax = when (typeCard) {
-        "Mastercard" -> if (monthlyTransferTotal + transfer <= transferLimitMastercard) {
-            0
-        } else {
-            (transfer * taxMastercard + 20).toInt()
+        "Mastercard" -> {
+            val total = monthlyTransferTotal + transfer
+            when {
+                monthlyTransferTotal >= transferLimitMastercard -> {
+                    (transfer * taxMastercard + 20).toInt()
+                }
+                total <= transferLimitMastercard -> {
+                    0
+                }
+                else -> {
+                    val excess = total - transferLimitMastercard
+                    (excess * taxMastercard + 20).toInt()
+                }
+            }
         }
 
-        "Visa" -> if (transfer * taxVisa < minTaxVisa) minTaxVisa else (transfer * taxVisa).toInt()
+        "Visa" -> {
+            val calculatedTax = transfer * taxVisa
+            if (calculatedTax < minTaxVisa) minTaxVisa else calculatedTax.toInt()
+        }
+
         "Mir" -> 0
+
         else -> return "Неизвестный тип карты"
     }
+
 
     return "Комиссия составит $tax руб."
 
